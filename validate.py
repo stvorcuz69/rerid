@@ -2,22 +2,21 @@ import requests
 import re
 
 # Define the server URL for RerID validation
-server_url = 'http://qg.stvorec.eu.org/servers/rerid:3000'
+SERVER_URL = 'http://qg.stvorec.eu.org/servers/rerid:3000'
 
 # Function to validate a RerID
 def validate_rerid(rerid):
     try:
         # Validate input: RerID format (e.g., "36-GHQ-456:1245")
-        if not re.match(r'^\d{2}-(COM|NTB|PHN)-\d{3}:\d{4}$', rerid):
+        rerid_pattern = r'^\d{2}-(COM|NTB|PHN)-\d{3}:\d{4}$'
+        if not re.match(rerid_pattern, rerid):
             raise ValueError('Invalid RerID format. Expected format: "xx-PLATFORM-xxx:xxxx".')
 
         # Prepare the request payload
-        payload = {
-            'rerid': rerid
-        }
+        payload = {'rerid': rerid}
 
         # Send a POST request to the server for validation
-        response = requests.post(server_url, data=payload)
+        response = requests.post(SERVER_URL, data=payload)
 
         # Check the response status code
         if response.status_code == 200:
@@ -38,12 +37,16 @@ def validate_rerid(rerid):
     except ValueError as ve:
         # Handle input validation errors
         print('Input validation error:', ve)
+    except requests.exceptions.RequestException as re:
+        # Handle request-related exceptions
+        print('Request error:', re)
     except Exception as e:
         # Handle any other exceptions
         print('An error occurred:', e)
 
-# Get RerID from the user
-rerid = input('Enter RerID to validate: ')
+if __name__ == '__main__':
+    # Get RerID from the user
+    rerid = input('Enter RerID to validate: ')
 
-# Call the validation function
-validate_rerid(rerid)
+    # Call the validation function
+    validate_rerid(rerid)
